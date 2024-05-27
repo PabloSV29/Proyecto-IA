@@ -162,7 +162,7 @@ def main():
     jugador_uno = input("Nombre del jugador 1: ")
     jugador_dos = input("Nombre del jugador 2: ")
     while True:
-        # system("clear")
+        system("clear")
         print(jugador_uno + ' En que columna quieres jugar?')
         print()
         print("\t",1,"\t",2,"\t",3,"\t",4,"\t",5,"\t",6,"\t",7)
