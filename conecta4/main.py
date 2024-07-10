@@ -30,29 +30,35 @@ def score(tablero):
     return puntaje_IA - puntaje_jugador
 
 def is_terminal_board(tablero):
-    return gano(tablero, 'jugador') or gano(tablero, 'jugador_IA') or all(tablero[0][i][0] != 0 for i in range(7)) # Vemos si gano el jugador uno o el jugador dos o si no quedan movimientos para el tablero. 
+    if gano(tablero, 'jugador') and gano(tablero, 'jugador_IA') and all(tablero[0][i][0] != 0 for i in range(7)):
+        return True
+    else:
+        return False
 
 def obtener_col_disponibles(tablero):
     col_disponibles = []
     for i in range(7):
-        if tablero[0][i] == 0:
+        if tablero[0][i][0] == 0:
+            print("Encontre una columna disponible")
             col_disponibles.append(i) 
     return col_disponibles
 
 
 def alphabeta(tablero, depth, a, b, maximizingPlayer):
     col_disponibles = obtener_col_disponibles(tablero)
+    print(f"Estas son las columnas disponibles: {col_disponibles}")
     is_terminal = is_terminal_board(tablero)
+    print(f"Es terminal? {is_terminal}")
     if depth == 0 or is_terminal:
         if is_terminal:
             if gano(tablero,'jugador'):
-                return -1000000
+                return None, -1000000
             elif gano(tablero, 'jugador_IA'):
-                return 1000000
+                return None,1000000
             else:
-                return 0 # empate.
+                return None,0 # empate.
         elif depth == 0:
-            return score(tablero)
+            return None,score(tablero)
 
     if maximizingPlayer:
         value = -math.inf
@@ -62,13 +68,13 @@ def alphabeta(tablero, depth, a, b, maximizingPlayer):
             copy_tablero = tablero
             modificar_tablero(copy_tablero, pos,'jugador_IA')
             nuevo_puntaje = alphabeta(copy_tablero, depth - 1, a, b, False)
-            if nuevo_puntaje > value:
-                value = nuevo_puntaje
+            if nuevo_puntaje[1] > value:
+                value = nuevo_puntaje[1]
                 col_return = columna 
             a = max(a, value)
             if a >= b: 
                 break
-        return buscar_pos_disponible(tablero, col_return) 
+        return col_return, value
     else: 
         value = math.inf
         col_return = 0
@@ -77,13 +83,13 @@ def alphabeta(tablero, depth, a, b, maximizingPlayer):
             copy_tablero = tablero
             modificar_tablero(copy_tablero, pos,'jugador')
             nuevo_puntaje = alphabeta(copy_tablero, depth - 1, a, b, True)
-            if nuevo_puntaje < value:
-                value = nuevo_puntaje
+            if nuevo_puntaje[1] < value:
+                value = nuevo_puntaje[1]
                 col_return = columna 
-            b = max(b, value)
+            b = min(b, value)
             if a >= b: 
                 break
-        return buscar_pos_disponible(tablero, col_return) 
+        return col_return, value 
 
 def gano(tablero, jugador):
 
@@ -94,7 +100,7 @@ def gano(tablero, jugador):
         valor_ficha = 1
     elif jugador == 'jugador_IA':
         valor_ficha = 2
-
+    
     # Verificar las horizontales
     for fila in range(numFil):
         for col in range(numCol - 3):
@@ -149,16 +155,17 @@ def modificar_tablero(tablero, pos, jugador):
 
 
 def main():
-   
-    # Tablero fijo. Preguntarse como podria variar para que sea mas grande.
+    
+   # Tablero fijo. Preguntarse como podria variar para que sea mas grande.
     tablero = [
         [(0,3),(0,4),(0,5),(0,7),(0,5),(0,4),(0,3)],
         [(0,4),(0,6),(0,8),(0,10),(0,8),(0,6),(0,4)],
         [(0,5),(0,7),(0,11),(0,13),(0,11),(0,7),(0,5)],
         [(0,5),(0,7),(0,11),(0,13),(0,11),(0,7),(0,5)],
-        [(0,4),(0,6),(0,8),(0,10),(0,8),(0,6),(0,4)],
-        [(0,3),(0,4),(0,5),(0,7),(0,5),(0,4),(0,3)],
+        [(0,4),(0,6),(0,8),(1,10),(0,8),(0,6),(0,4)],
+        [(0,3),(0,4),(0,5),(2,7),(0,5),(0,4),(0,3)],
     ]
+
     
     # tablero = np.zeros((6,7), dtype=int)
     # tablero = np.random.randint(0,10, size=(6,7))
@@ -169,10 +176,11 @@ def main():
         print("COMIENZA EL JUGADOR! ;D") 
     else:
         print("COMIENZA LA IA! :p")
+    print(f"COMIENZA: {comienza}")
     # calcular_score(tablero)
     while not win:
         if comienza == 1:
-            system("clear")
+            # system("clear")
             print(jugador_humano + ' en que columna quieres jugar?')
             print()
             print(1,2,3,4,5,6,7)
@@ -182,18 +190,19 @@ def main():
             modificar_tablero(tablero, buscar_pos_disponible(tablero,columna-1), 'jugador')
             if gano(tablero, 'jugador'):
                 print(jugador_humano + 'GANASTE!!')
-                break
+                win = True
             else:
                 comienza = 0
         else:
-            system("clear")
-            pos = alphabeta(tablero, 5, -math.inf, math.inf, True)
-            modificar_tablero(tablero, pos, 'jugador_IA')
+            # system("clear")
+            tupla = alphabeta(tablero, 5, -math.inf, math.inf, True)
+            print(f"TUPLA: {tupla}")
+            modificar_tablero(tablero, buscar_pos_disponible(tablero, tupla[0]), 'jugador_IA')
             print(1,2,3,4,5,6,7)
             dibujar_tablero(tablero)
             if gano(tablero, 'jugador_IA'):
                 print("LA IA A GANADO ESTA PARTIDA")
-                break
+                win = True
             else:
                 comienza = 1
 
