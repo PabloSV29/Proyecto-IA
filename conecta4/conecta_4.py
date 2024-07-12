@@ -8,6 +8,10 @@ import pygame
 import sys
 import math
 
+BLUE = (0,0,255)
+RED = (255,0,0)
+BLACK = (0 ,0 ,0)
+GREEN = (0,255,00)
 # Esta matriz contiene los valores 
 matriz_puntuacion = np.array([
     [3, 4, 5, 7, 5, 4, 3],
@@ -17,10 +21,7 @@ matriz_puntuacion = np.array([
     [4, 6, 8, 10, 8, 6, 4],
     [3, 4, 5, 7, 5, 4, 3]
 ])
-BLUE = (0,0,255)
-RED = (255,0,0)
-BLACK = (0 ,0 ,0)
-GREEN = (0,255,00)
+
 def crear_tablero():
     tablero = np.zeros((6,7), dtype=int)
     return tablero
@@ -33,11 +34,11 @@ def print_tablero(tablero):
         print()
 
 
-def dibujar_tablero(tablero):
-    for fila in tablero:
-        for tupla in fila:
-            print(tupla[0], end=' ')
-        print()
+# def dibujar_tablero(tablero):
+#     for fila in tablero:
+#         for tupla in fila:
+#             print(tupla[0], end=' ')
+#         print()
 
 def col_valida(tablero, col):
     #col = int(col)
@@ -179,36 +180,41 @@ def dibujar_tablero1(tablero):
                 pygame.draw.circle(screen,GREEN,(int(c*SQUARESIZE+SQUARESIZE/2),int(f*SQUARESIZE+SQUARESIZE+SQUARESIZE/2)),RADIUS)
     pygame.display.update()
 
+#Apartado de interfaz
 pygame.init()
 SQUARESIZE = 100
 width = 7 * SQUARESIZE
-height = (7) * SQUARESIZE
+height = (8) * SQUARESIZE
 size = (width,height)
 RADIUS = int(SQUARESIZE/2 - 5)
 screen = pygame.display.set_mode(size)
+pygame.display.set_caption('Conecta-4 con IA')
+Icono = pygame.image.load('logo.png')
+pygame.display.set_icon(Icono)
 
 def main():
-    
+    #Establecemos las variables necesarias
     tablero = crear_tablero()
-    print_tablero(tablero)
-    #Si se deja con input no funciona y se muere :c
+    # print_tablero(tablero)
     #jugador = input("Ingresa tu nombre: ")
     jugador = "REAL"
     moneda = np.random.randint(2)
-    #moneda = 1
     win = False   
     
     dibujar_tablero1(tablero)
     pygame.display.update()
 
-    if moneda == 0:
-        # Turno del jugador.
-        print(f"COMIENZA {jugador}!")
-    else:
-        # Turno de la IA
-        print("COMIENZA LA IA!")
+    myfont = pygame.font.SysFont("monospace", 50)
+    # if moneda == 0:
+    #     # Turno del jugador.
+    #     print(f"COMIENZA {jugador}!")
+    # else:
+    #     # Turno de la IA
+    #     print("COMIENZA LA IA!")
+    # # mov_rest = 3
     while not win:
         for event in pygame.event.get():
+            #En caso de se quiera cerrar el juego
             if event.type == pygame.QUIT:
                 sys.exit()
             #Para hacer el movimiento de la ficha del jugador REAL
@@ -218,16 +224,20 @@ def main():
                 if moneda == 0:
                     pygame.draw.circle(screen, RED,(pos_x, int(SQUARESIZE/2)),RADIUS)
             pygame.display.update()
+            # print(f"Movimientos restantes: {mov_rest}")
             if moneda == 0: 
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    #print(event.pos)       
+                    pygame.draw.rect(screen, BLACK,(0,0, width, SQUARESIZE))
                     # Turno del jugador.
                     pos_x = event.pos[0]
                     col = int(math.floor(pos_x/SQUARESIZE))
                     #col = int(input("Ingresa la columna donde quieres jugar en el rango de 0-6:"))
                     if col_valida(tablero, col):
                         insertar_ficha(tablero, col, 1) # El jugador ocupara la ficha 1
+                        # mov_rest -= 1
                         if gano(tablero, 1):
+                            label = myfont.render("Ha ganado el jugador REAL", 1, RED)
+                            screen.blit(label,(30,10))
                             print(f"{jugador} HA GANADO!")
                             win = True
                         else:
@@ -237,14 +247,23 @@ def main():
                         continue
                     #Descomentar esta parte de aqui si se quiere ver el tablero por la terminal
                     #print_tablero(tablero)
-            else:
+            elif moneda == 1:
                 # Turno de la IA.
-                print("TURNO DE LA IA")
-                print()
-                col, puntaje = minimax(tablero, 4, -np.inf, np.inf, True) # Profundidad de 4. No ocupamos el puntaje, solo lo ocupamos dentro de las llamadas recursivas.
+                # print("TURNO DE LA IA")
+                # print()
+                #Obtenemos los datos a partir del algoritmo de minmax con poda alfa-beta
+                col, puntaje = minimax(tablero, 4, -np.inf, np.inf, True) # Profundidad de 4. Se ocupa el puntaje para mostrarlo en pantalla.
+                screen.fill(BLACK)
+                label = myfont.render(f"Puntaje IA: {puntaje}", 1, GREEN)
+                screen.blit(label,(50,700))
+                pygame.display.flip()
+               #print(puntaje)
                 if col_valida(tablero, col):
                     insertar_ficha(tablero, col, 2) # La IA ocuprara la ficha 2.
+                    # mov_rest -= 1
                     if gano(tablero, 2):
+                        label = myfont.render("Ha ganado la IA", 1, GREEN)
+                        screen.blit(label,(30,10))
                         print("LA IA HA GANADO")
                         win = True
                     else:
@@ -252,8 +271,13 @@ def main():
                 else:
                     print("flag de error, IA mal posicion")
                     continue
+            # elif mov_rest == 0:
+            #     win = True
+            #     print("Empate")
+
             #Mismo punto que el anterior
             #print_tablero(tablero)
             dibujar_tablero1(tablero)
-
+            if win:
+                pygame.time.wait(3500)
 main()
