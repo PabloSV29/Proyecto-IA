@@ -20,7 +20,7 @@ Representacion concreta de las acciones:
 Propuesta: En este caso se podria almacenar las coordenas del tablero en que colocar una ficha dentro de matriz y tener otra variable me permita distingir la ficha correspondiente. (Puede que asigne desde un principio la ficha).
 
 EJECUCIÓN DE CÓDIGO
-Para poder ejecutar el codigo tneemos que instalar unos paquetes se necesitan como por ejemplo para pygame o numpy, luego de eso se puede pasar a ejecutar el juego con el comando python conecta_4.py y se abrirá una ventana en donde comenzará el juego, moviendo el mouse se podrá mover la ficha para colocarla en la columna que el jugador quiera y que despues jugará la IA. En la parte de abajo se muestra un puntaje que me permite saber el momento que tiene mas posibilidad de ganar.
+Para poder ejecutar el codigo tenemos que instalar unos paquetes se necesitan como por ejemplo para pygame o numpy, luego de eso se puede pasar a ejecutar el juego con el comando python conecta_4.py y se abrirá una ventana en donde comenzará el juego, moviendo el mouse se podrá mover la ficha para colocarla en la columna que el jugador quiera y que despues jugará la IA. En la parte de abajo se muestra un puntaje que me permite saber el momento que tiene mas posibilidad de ganar.
 
 
 
